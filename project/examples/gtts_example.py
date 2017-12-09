@@ -6,7 +6,7 @@ import pygame
 
 def say(text='Hello'):
 
-    tts = gTTS(text=text, lang='en')
+    tts = gTTS(text=text, lang='ko')
     pygame.mixer.init()
     pygame.init()
     with io.BytesIO() as f:
@@ -23,4 +23,4 @@ def save_voice(text='Hello', filename="default.mp3"):
     tts.save(filename)
 
 if __name__=="__main__":
-    say("Hello, my name is pyo.")
+    say("과제 존나 하기 싫다.")
