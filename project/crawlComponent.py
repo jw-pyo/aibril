@@ -24,11 +24,11 @@ url_store = {
 class Crawler():
     def __init__(self):
         self.url_store = url_store
+        self.browser = webdriver.PhantomJS('./phantomjs')
+        #self.browser = webdriver.Chrome('./chromedriver')
 
     def getInfo(self, url, minPrice, maxPrice, memo):
-        #browser = webdriver.PhantomJS('./phantomjs-2.1.1-macosx/bin/phantomjs')
-        browser = webdriver.Chrome('./chromedriver')
-        browser.get(url)
+        self.browser.get(url)
 
         browser.find_element_by_name("priceRangeMinPrice").send_keys(minPrice)
         browser.find_element_by_name("priceRangeMaxPrice").send_keys(maxPrice)
@@ -42,31 +42,31 @@ class Crawler():
                 "product": [],
                 "price" : []
         }
-        browser = webdriver.PhantomJS('./phantomjs')
-        browser.ignoreSynchronization = True
-        browser.get(url)
+        self.browser.ignoreSynchronization = True
+        self.browser.get(url)
         #print(url)
-        browser.ignoreSynchronization = False
+        self.browser.ignoreSynchronization = False
         #print(browser.page_source)
-        browser.find_element_by_name("priceRangeMinPrice").send_keys(minPrice)
-        browser.find_element_by_name("priceRangeMaxPrice").send_keys(maxPrice)
-        browser.find_element_by_class_name("btn_search").click()
-        browser.implicitly_wait(1)
+        self.browser.find_element_by_name("priceRangeMinPrice").send_keys(minPrice)
+        self.browser.find_element_by_name("priceRangeMaxPrice").send_keys(maxPrice)
+        self.browser.find_element_by_class_name("btn_search").click()
+        self.browser.implicitly_wait(1)
         print("finish loading the page...\n")
-        product_list = browser.find_elements_by_name("productName")
+        product_list = self.browser.find_elements_by_name("productName")
         
         p_name = ""
         p_price = 0
         for n, product in enumerate(product_list):
             p_name = product.text
             break
-        price_list = browser.find_elements_by_class_name("prod_pricelist")
-        for n, price in enumerate(price_list): 
-            p_price = price.text
-            break
+        #price_list = browser.find_elements_by_class_name("prod_pricelist")
+        #for n, price in enumerate(price_list): 
+        #    p_price = price.text
+        #    break
             #ret_json["price"].append(int(price.text))
-        print( p_name + " " + str(p_price))
-        return p_name + " " + p_price
+        #print( p_name + " " + p_price)
+        print(p_name)
+        return p_name
     def getInfoByTextMT(self, url, minPrice, maxPrice, memo):
         #TODO: make getInfoByText with multithread
         #thread.start_new_thread(self.getInfoByText, (self.url_store["CPU"], 0, 100000, "cpu", ) )
@@ -80,8 +80,10 @@ if __name__ == "__main__":
     url_store = url_store
     user = Crawler()
     user.getInfoByText(url_store["mouse"], 15000, 100000, "call the cpu")
+    user.getInfoByText(url_store["keyboard"], 15000, 100000, "call the cpu")
+    user.getInfoByText(url_store["mainboard"], 15000, 100000, "call the cpu")
     #user.getInfo(url_store["CPU"], 300000, 450000, "call the cpu")
-    user.getInfoByTextMT(url_store["CPU"], 300000, 450000, "call the cpu")
+    #user.getInfoByTextMT(url_store["CPU"], 300000, 450000, "call the cpu")
 
 """
 ## id, pw

@@ -116,13 +116,26 @@ def apiMessage():
 			output_text, _, context, response = Conversation_Message(conversation_model_v1, \
 					workspace_id, message, context, True)
                         print(output_text)
-                        if "case_maxprice" in context.keys() and context["case_maxprice"] != "":
+                        """ 
+                        if "email" not in context.keys() and "case_maxprice" in context.keys() and context["case_maxprice"] != "":
                             print("INTO THE IF CLAUSE")
+                            total_price = { "CPU" : context["CPU_maxprice"], \
+                                            "RAM" : context["RAM_maxprice"],\
+                                            "GPU" : context["GPU_maxprice"],\
+                                            "disk" : context["disk_maxprice"],\
+                                            "monitor" : context["monitor_maxprice"],\
+                                            "power" : context["power_maxprice"],\
+                                            "keyboard" : context["keyboard_maxprice"],\
+                                            "mouse" : context["mouse_maxprice"],\
+                                            "case" : context["case_maxprice"], \
+                                            u"총 가격" : int(context["first_price"]) - int(context["price"])
+                                            }
                             #crawler = Crawler()
                             #response["output"]["text"] = crawler.getInfoByText(self.url_store["mouse"], 15000, 100000, "mouse")
-                            response["output"]["text"] = "test\n"
+                            response["output"]["text"] = str(total_price) + "\n 해당 가격대에서 최적의 부품을 선택 후, 견적을 보내드리겠습니다. 이메일 주소를 입력해 주세요"
                             print(response["output"]["text"])
-			if len(context["conversation_id"]) > 0:
+			"""
+                        if len(context["conversation_id"]) > 0:
 				if "workspace_id" in context.keys():
 					next_workspace_id = context["workspace_id"]
 					if workspace_id != next_workspace_id and len(next_workspace_id) != 0:
@@ -142,4 +155,5 @@ def apiMessage():
 port = os.getenv('PORT', '8000')  
 
 if __name__ == "__main__":  
-	app.run(host='0.0.0.0', port=int(port)) 
+	total_price = {}
+        app.run(host='0.0.0.0', port=int(port)) 
