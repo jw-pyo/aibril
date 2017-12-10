@@ -118,8 +118,9 @@ def apiMessage():
                         print(output_text)
                         if "case_maxprice" in context.keys() and context["case_maxprice"] != "":
                             print("INTO THE IF CLAUSE")
-                            crawler = Crawler()
-                            response["output"]["text"] = crawler.getInfoByText(self.url_store["mouse"], 15000, 100000, "mouse")
+                            #crawler = Crawler()
+                            #response["output"]["text"] = crawler.getInfoByText(self.url_store["mouse"], 15000, 100000, "mouse")
+                            response["output"]["text"] = "test\n"
                             print(response["output"]["text"])
 			if len(context["conversation_id"]) > 0:
 				if "workspace_id" in context.keys():

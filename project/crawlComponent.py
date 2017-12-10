@@ -65,18 +65,23 @@ class Crawler():
             p_price = price.text
             break
             #ret_json["price"].append(int(price.text))
+        print( p_name + " " + str(p_price))
         return p_name + " " + p_price
     def getInfoByTextMT(self, url, minPrice, maxPrice, memo):
         #TODO: make getInfoByText with multithread
-        try:
-            thread.start_new_thread(getInfoByText, (self.url_store["CPU"], 2, ))
+        #thread.start_new_thread(self.getInfoByText, (self.url_store["CPU"], 0, 100000, "cpu", ) )
+        self.getInfoByText(url_store["mouse"], 15000, 100000, "call the cpu")
+            #thread.start_new_thread(getInfoByText, (self.url_store["mouse"], 0, 100000, "cpu", ) )
+            #thread.start_new_thread(getInfoByText, (self.url_store["keyboard"], 0, 100000, "cpu", ) )
+            #thread.start_new_thread(getInfoByText, (self.url_store["RAM"], 0, 100000, "cpu", ) )
+            #thread.start_new_thread(getInfoByText, (self.url_store["GPU"], 0, 100000, "cpu", ) )
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     url_store = url_store
     user = Crawler()
     user.getInfoByText(url_store["mouse"], 15000, 100000, "call the cpu")
     #user.getInfo(url_store["CPU"], 300000, 450000, "call the cpu")
+    user.getInfoByTextMT(url_store["CPU"], 300000, 450000, "call the cpu")
 
 """
 ## id, pw
