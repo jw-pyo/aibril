@@ -1,41 +1,26 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-"""
-- Simple Example code
-
-import os
-try:
-  from SimpleHTTPServer import SimpleHTTPRequestHandler as Handler
-  from SocketServer import TCPServer as Server
-except ImportError:
-  from http.server import SimpleHTTPRequestHandler as Handler
-  from http.server import HTTPServer as Server
-
-# Read port selected by the cloud for our application
-PORT = int(os.getenv('PORT', 8000))
-# Change current directory to avoid exposure of control files
-os.chdir('static')
-
-httpd = Server(("", PORT), Handler)
-try:
-  print("Start serving at port %i" % PORT)
-  httpd.serve_forever()
-except KeyboardInterrupt:
-  pass
-httpd.server_close()
-"""
-# define import library - Python Library
 import os, json, urllib, requests, datetime
-# define import library - Flask Library
 from flask import Flask, session, escape, Response
 from flask import request, redirect, url_for, render_template, jsonify, send_from_directory, make_response
 from flask_cors import CORS, cross_origin
-# define import library - Watson Conversation Wrapper Library
 from model.conversation import ConversationModel
-from crawlComponent import Crawler
+import pprint
+#from crawling.crawlComponent import Crawler
+
 local_path = os.getcwd()
+execfile('data/data.py')
 execfile(local_path + '/config.py')
+
+class MyPrettyPrinter(pprint.PrettyPrinter):
+    def format(self, _object, context, maxlevels, level):
+        if isinstance(_object, unicode):
+            return "'%s'" % _object.encode('utf8'), True, False
+        elif isinstance(_object, str):
+            _object = unicode(_object,'utf8')
+            return "'%s'" % _object.encode('utf8'), True, False
+        return pprint.PrettyPrinter.format(self, _object, context, maxlevels, level)
 
 def Make_Conversation():
 	model_v1 = None
@@ -116,6 +101,43 @@ def apiMessage():
 			output_text, _, context, response = Conversation_Message(conversation_model_v1, \
 					workspace_id, message, context, True)
                         print(output_text)
+                        if "comp" in context.keys() and "price" in context.keys() and "usage" in context.keys() and context["isSpec"]=="false":
+                            if context["comp"] == "Desktop":
+                                obj =data["Desktop"][context["usage"]][str(context["price"])]
+                                ret = "CPU: "+obj["CPU"]+"<br />\n" + \
+                                      "RAM: "+obj["RAM"]+"<br />\n" + \
+                                      "GPU: "+obj["GPU"]+"<br />\n" + \
+                                      "메인보드: "+obj["mainboard"]+"<br />\n" + \
+                                      "저장장치: "+obj["disk"]+"<br />\n" + \
+                                      "파워: "+obj["power"]+"<br />\n" + \
+                                      "케이스: "+obj["case"]+"<br />\n" + \
+                                      "모니터: "+obj["monitor"]+"<br />\n" + \
+                                      "키보드: "+obj["keyboard"]+"<br />\n" + \ 
+                                      "마우스: "+obj["mouse"]+"<br />\n" + \
+                                      "가격 : "+obj["price"]+"<br />\n" + \
+                                      "이메일을 기재하시면 본 견적서를 발송해드리겠습니다."
+                                
+                                response["output"]["text"] = ret
+                                #response["output"]["text"] = #"CPU: "+obj["CPU"]+"<br />\n" + \
+                                                             #"RAM: "+obj["RAM"]+"<br />\n" + \
+                                                             #"GPU: "+obj["GPU"]+"<br />\n" + \
+                                                             #"메인보드: "+obj["mainboard"]+"<br />\n" + \
+                                                             #"저장장치: "+obj["disk"]+"<br />\n" + \
+                                                             #"파워: "+obj["power"]+"<br />\n" + \
+                                                             #"케이스: "+obj["case"]+"<br />\n" + \
+                                                             #"모니터: "+obj["monitor"]+"<br />\n" + \
+                                                             #"키보드: "+obj["keyboard"]+"<br />\n" + \
+                                                             #"마우스: "+obj["mouse"]+"<br />\n" + \
+                                                             #"가격 : "+obj["price"]+"<br />\n" + \
+                                                             #"이메일을 기재하시면 본 견적서를 발송해드리겠습니다."
+                                #response["output"]["text"] = MyPrettyPrinter().pformat(data["Desktop"][context["usage"]][str(context["price"])]) + "<br />\n 이메일을 기재하시면 해당 견적서를 보내드리겠습니다."+obj["CPU"]
+                            else:
+                                response["output"]["text"] = MyPrettyPrinter().pformat(data["Notebook"][context["usage"]][str(context["price"])])+ "<br />\n 이메일을 기재하시면 해당 견적서를 보내드리겠습니다."
+                            context["isSpec"] = "true"
+                            #print(context["comp"])
+                            #print(context["price"])
+                            #print(context["usage"])
+                        
                         """ 
                         if "email" not in context.keys() and "case_maxprice" in context.keys() and context["case_maxprice"] != "":
                             print("INTO THE IF CLAUSE")
