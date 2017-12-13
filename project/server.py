@@ -103,6 +103,7 @@ def apiMessage():
                         print(output_text)
                         if "comp" in context.keys() and "price" in context.keys() and "usage" in context.keys() and context["isSpec"]=="false":
                             if context["comp"] == "Desktop":
+                                """
                                 obj =data["Desktop"][context["usage"]][str(context["price"])]
                                 ret = "CPU: "+obj["CPU"]+"<br />\n" + \
                                       "RAM: "+obj["RAM"]+"<br />\n" + \
@@ -110,12 +111,9 @@ def apiMessage():
                                       "메인보드: "+obj["mainboard"]+"<br />\n" + \
                                       "저장장치: "+obj["disk"]+"<br />\n" + \
                                       "파워: "+obj["power"]+"<br />\n" + \
-                                      "케이스: "+obj["case"]+"<br />\n" + \
-                                      "모니터: "+obj["monitor"]+"<br />\n" + \
-                                      "키보드: "+obj["keyboard"]+"<br />\n" + \ 
-                                      "마우스: "+obj["mouse"]+"<br />\n" + \
                                       "가격 : "+obj["price"]+"<br />\n" + \
                                       "이메일을 기재하시면 본 견적서를 발송해드리겠습니다."
+                                      #"케이스: "+obj["case"]+"<br />\n" + \
                                 
                                 response["output"]["text"] = ret
                                 #response["output"]["text"] = #"CPU: "+obj["CPU"]+"<br />\n" + \
@@ -130,7 +128,8 @@ def apiMessage():
                                                              #"마우스: "+obj["mouse"]+"<br />\n" + \
                                                              #"가격 : "+obj["price"]+"<br />\n" + \
                                                              #"이메일을 기재하시면 본 견적서를 발송해드리겠습니다."
-                                #response["output"]["text"] = MyPrettyPrinter().pformat(data["Desktop"][context["usage"]][str(context["price"])]) + "<br />\n 이메일을 기재하시면 해당 견적서를 보내드리겠습니다."+obj["CPU"]
+                                """
+                                response["output"]["text"] = MyPrettyPrinter().pformat(data["Desktop"][context["usage"]][str(context["price"])]) + "<br />\n 이메일을 기재하시면 해당 견적서를 보내드리겠습니다."
                             else:
                                 response["output"]["text"] = MyPrettyPrinter().pformat(data["Notebook"][context["usage"]][str(context["price"])])+ "<br />\n 이메일을 기재하시면 해당 견적서를 보내드리겠습니다."
                             context["isSpec"] = "true"
