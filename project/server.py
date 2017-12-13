@@ -7,11 +7,38 @@ from flask import request, redirect, url_for, render_template, jsonify, send_fro
 from flask_cors import CORS, cross_origin
 from model.conversation import ConversationModel
 import pprint
+import trollius as asyncio
+from trollius import From
+from threading import Thread
 #from crawling.crawlComponent import Crawler
 
 local_path = os.getcwd()
 execfile('data/data.py')
 execfile(local_path + '/config.py')
+
+import smtplib
+from email.mime.text import MIMEText
+
+isSend = False
+contents_buf = ""
+smtp = smtplib.SMTP('smtp.gmail.com', 587)
+smtp.ehlo()      # say Hello
+smtp.starttls()  # TLS 사용시 필요
+smtp.login('id', 'password') 
+msg = MIMEText("a")
+#msg = MIMEText("dd")
+#msg = MIMEText("test")
+#msg['Subject'] = '[컴퓨터 견적서]'
+#msg['To'] = 'wjddn1801@gmail.com'
+#smtp.sendmail('wjddn1801@gmail.com', 'jhlee@kdb.snu.ac.kr', msg.as_string())
+ 
+#smtp.quit()
+def sendMessage(contents, fr, to, msg=msg):
+    msg['Subject'] = '[컴퓨터견적서]'
+    msg['To'] = to
+    msg['From'] = fr
+    smtp.sendmail(fr, to, msg.as_string())
+    smtp.quit()
 
 class MyPrettyPrinter(pprint.PrettyPrinter):
     def format(self, _object, context, maxlevels, level):
@@ -101,61 +128,26 @@ def apiMessage():
 			output_text, _, context, response = Conversation_Message(conversation_model_v1, \
 					workspace_id, message, context, True)
                         print(output_text)
+                        #if "email" in context.keys() and context["email"] != "" and isSend is False:
+                         #   sendMessage("test", "wjddn1801@gmail.com", context["email"], msg)
+                         #   isSend = True
                         if "comp" in context.keys() and "price" in context.keys() and "usage" in context.keys() and context["isSpec"]=="false":
                             if context["comp"] == "Desktop":
-                                """
-                                obj =data["Desktop"][context["usage"]][str(context["price"])]
-                                ret = "CPU: "+obj["CPU"]+"<br />\n" + \
-                                      "RAM: "+obj["RAM"]+"<br />\n" + \
-                                      "GPU: "+obj["GPU"]+"<br />\n" + \
-                                      "메인보드: "+obj["mainboard"]+"<br />\n" + \
-                                      "저장장치: "+obj["disk"]+"<br />\n" + \
-                                      "파워: "+obj["power"]+"<br />\n" + \
-                                      "가격 : "+obj["price"]+"<br />\n" + \
-                                      "이메일을 기재하시면 본 견적서를 발송해드리겠습니다."
-                                      #"케이스: "+obj["case"]+"<br />\n" + \
-                                
-                                response["output"]["text"] = ret
-                                #response["output"]["text"] = #"CPU: "+obj["CPU"]+"<br />\n" + \
-                                                             #"RAM: "+obj["RAM"]+"<br />\n" + \
-                                                             #"GPU: "+obj["GPU"]+"<br />\n" + \
-                                                             #"메인보드: "+obj["mainboard"]+"<br />\n" + \
-                                                             #"저장장치: "+obj["disk"]+"<br />\n" + \
-                                                             #"파워: "+obj["power"]+"<br />\n" + \
-                                                             #"케이스: "+obj["case"]+"<br />\n" + \
-                                                             #"모니터: "+obj["monitor"]+"<br />\n" + \
-                                                             #"키보드: "+obj["keyboard"]+"<br />\n" + \
-                                                             #"마우스: "+obj["mouse"]+"<br />\n" + \
-                                                             #"가격 : "+obj["price"]+"<br />\n" + \
-                                                             #"이메일을 기재하시면 본 견적서를 발송해드리겠습니다."
-                                """
+                                if context["price"] <= 600000: context["price"] = 600000
+                                elif context["price"] <= 800000: context["price"] = 800000
+                                elif context["price"] <= 1000000 and context["usage"] == "game": context["price"] = 1000000
+                                elif context["price"] <= 1200000 and context["usage"] == "game": context["price"] = 1200000
+                                else: context["price"] = "other"
                                 response["output"]["text"] = MyPrettyPrinter().pformat(data["Desktop"][context["usage"]][str(context["price"])]) + "<br />\n 이메일을 기재하시면 해당 견적서를 보내드리겠습니다."
+                                contents_buf = MyPrettyPrinter().pformat(data["Desktop"][context["usage"]][str(context["price"])])
                             else:
+                                if context["price"] <= 500000: context["price"] = 500000
+                                elif context["price"] > 1500000: context["price"] = "other"
+                                else: context["price"] = context["price"] % 100000 == 0 and context["price"]/100000*100000 or context["price"]/100000*100000+100000
                                 response["output"]["text"] = MyPrettyPrinter().pformat(data["Notebook"][context["usage"]][str(context["price"])])+ "<br />\n 이메일을 기재하시면 해당 견적서를 보내드리겠습니다."
+                                contents_buf = MyPrettyPrinter().pformat(data["Notebook"][context["usage"]][str(context["price"])])
                             context["isSpec"] = "true"
-                            #print(context["comp"])
-                            #print(context["price"])
-                            #print(context["usage"])
                         
-                        """ 
-                        if "email" not in context.keys() and "case_maxprice" in context.keys() and context["case_maxprice"] != "":
-                            print("INTO THE IF CLAUSE")
-                            total_price = { "CPU" : context["CPU_maxprice"], \
-                                            "RAM" : context["RAM_maxprice"],\
-                                            "GPU" : context["GPU_maxprice"],\
-                                            "disk" : context["disk_maxprice"],\
-                                            "monitor" : context["monitor_maxprice"],\
-                                            "power" : context["power_maxprice"],\
-                                            "keyboard" : context["keyboard_maxprice"],\
-                                            "mouse" : context["mouse_maxprice"],\
-                                            "case" : context["case_maxprice"], \
-                                            u"총 가격" : int(context["first_price"]) - int(context["price"])
-                                            }
-                            #crawler = Crawler()
-                            #response["output"]["text"] = crawler.getInfoByText(self.url_store["mouse"], 15000, 100000, "mouse")
-                            response["output"]["text"] = str(total_price) + "\n 해당 가격대에서 최적의 부품을 선택 후, 견적을 보내드리겠습니다. 이메일 주소를 입력해 주세요"
-                            print(response["output"]["text"])
-			"""
                         if len(context["conversation_id"]) > 0:
 				if "workspace_id" in context.keys():
 					next_workspace_id = context["workspace_id"]
@@ -177,4 +169,4 @@ port = os.getenv('PORT', '8000')
 
 if __name__ == "__main__":  
 	total_price = {}
-        app.run(host='0.0.0.0', port=int(port)) 
+        app.run(host='0.0.0.0', port=int(port))
